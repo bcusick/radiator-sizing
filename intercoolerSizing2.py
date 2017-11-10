@@ -5,18 +5,18 @@ import fluids
 
 
 ## initial variables and all dims in meters
-coreHeight = 18 * 25.4/1000 #all dims in meters
-coreWidth = 23 * 25.4/1000
+coreHeight = 2.5 * 25.4/1000 #all dims in meters
+coreWidth = 17.0 * 25.4/1000
 coreThickness = 1.25 * 25.4/1000
 
 
-finHeight= 10.0/1000
-finSpacing = 1.7/1000  #ref 1.59
+finHeight= 7.0/1000
+finSpacing = .9/1000  #ref 1.59
 finperRow = coreWidth/finSpacing
 print finperRow
 
 tubeWall = .5/1000
-tubeHeight = 2.0/1000 #outer dimension
+tubeHeight = 2/1000 #outer dimension
 
 ##fluid constants
 ##coolant to 50-50 glycol/water
@@ -34,33 +34,32 @@ mu_Air = 0.00001912 # Pa s, Dynamic Viscosity
 
 ## operating conditions
 
-flowrateCoolant = 40 #GPM, volumetric
+flowrateCoolant = 10 #GPM, volumetric
 flowrateCoolant = flowrateCoolant * 3.8 #LPM
+print flowrateCoolant
 flowrateCoolant = flowrateCoolant /60/1000 # convert to m3/s
 massflowCoolant = flowrateCoolant *rho_Coolant
 
 
 
-flowrateAir2 = 1600 + 650  #CFM, volumetric
+flowrateAir2 = 150 #CFM, volumetric
 flowrateAir2 = flowrateAir2 / 60 / 35.3 #convert to m3/s
-print flowrateAir2
 #print flowrateAir*3600
-travelSpeed = 5.0 #mph
+travelSpeed = 55.0 #mph
 travelSpeed = travelSpeed/3600
 travelSpeed = travelSpeed * 1609 # convert to m/s
 flowrateAir = travelSpeed * coreHeight * coreWidth
-flowrateAir *= 0.75
-#flowrateAir = flowrateAir2
-flowrateAir += flowrateAir2
-print flowrateAir
+flowrateAir = flowrateAir2
+#print flowrateAir
 massflowAir = flowrateAir *rho_Air
 
-tempAir = 40 # Celsius
-tempCoolant = 105 # Celsius
+tempAir = 120 # Celsius
+tempCoolant = 80 # Celsius
 
 
 ## calculate surface areas
-numberTubes = round(coreHeight / finHeight - 1)
+#numberTubes = round(coreHeight / finHeight - 1)
+numberTubes = 14 #actual value
 numberAirPass = coreWidth / finSpacing * (numberTubes + 1)
 tubeInnerH = tubeHeight - 2 * tubeWall
 tubeInnerW = coreThickness - 2 * tubeWall
@@ -75,7 +74,7 @@ Dh_Coolant = 4 * (tubeInnerH * tubeInnerW) / (2*(tubeInnerH + tubeInnerW))
 tubeVelocity = flowrateCoolant/numberTubes/(tubeInnerH*tubeInnerW)
 reynoldsCoolant = fluids.core.Reynolds(D=Dh_Coolant, rho=rho_Coolant, V=tubeVelocity, mu=mu_Coolant)
 prandltCoolant = fluids.core.Prandtl(Cp=C_Coolant , k=k_Coolant , mu=mu_Coolant, nu=None, rho=None, alpha=None)
-nusseltCoolant = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsCoolant, Pr=prandltCoolant, heating=False)
+nusseltCoolant = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsCoolant, Pr=prandltCoolant, heating=True)
 h_Coolant = nusseltCoolant * k_Coolant / Dh_Coolant
 print '------------------------'
 
@@ -88,7 +87,7 @@ prandltAir = fluids.core.Prandtl(Cp=C_Air , k=k_Air , mu=mu_Air, nu=None, rho=No
 if reynoldsAir<2600:
     nusseltAir = ht.conv_internal.laminar_Q_const()
 else:
-    nusseltAir = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsAir, Pr=prandltAir, heating=True)
+    nusseltAir = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsAir, Pr=prandltAir, heating=False)
 #nusseltAir =ht.conv_external.Nu_cylinder_Zukauskas(Re=reynoldsAir, Pr=prandltAir, Prw=None)
 
 #nusseltAir = 10  # manual overide for laminare flow
@@ -103,12 +102,12 @@ UA = 1/UA
 
 print UA
 
-NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
-#NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
-Power = (NTU['Q']/1000 - 2.5) *3/.75
+#NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
+NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
+Power = NTU['Q']/1000*3/.75
 print NTU
-print "Support power: "
-print Power
+#print "Support power: "
+#print Power
 
 
 ####testing
