@@ -34,7 +34,7 @@ mu_Air = 0.00001912 # Pa s, Dynamic Viscosity
 
 ## operating conditions
 
-flowrateCoolant = 5 #GPM, volumetric
+flowrateCoolant = 40 #GPM, volumetric
 flowrateCoolant = flowrateCoolant * 3.8 #LPM
 print flowrateCoolant
 flowrateCoolant = flowrateCoolant /60/1000 # convert to m3/s
@@ -42,10 +42,10 @@ massflowCoolant = flowrateCoolant *rho_Coolant
 
 
 
-flowrateAir2 = 1200 #CFM, volumetric
+flowrateAir2 = 1600 #CFM, volumetric
 flowrateAir2 = flowrateAir2 / 60 / 35.3 #convert to m3/s
 #print flowrateAir*3600
-travelSpeed = 60.0 #mph
+travelSpeed = 20.0 #mph
 travelSpeed = travelSpeed/3600
 travelSpeed = travelSpeed * 1609 # convert to m/s
 flowrateAir = travelSpeed * coreHeight * coreWidth
@@ -54,7 +54,7 @@ flowrateAir = flowrateAir2
 massflowAir = flowrateAir *rho_Air
 
 tempAir = 40 # Celsius
-tempCoolant = 100 # Celsius
+tempCoolant = 105 # Celsius
 
 
 ## calculate surface areas
@@ -102,6 +102,7 @@ UA = 1/UA
 print UA
 
 NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
+#NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
 Power = NTU['Q']/1000*3/.75
 print NTU
 print "Support power: "
