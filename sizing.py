@@ -10,8 +10,8 @@ coreWidth = 23 * 25.4/1000
 coreThickness = 1.25 * 25.4/1000
 
 
-finHeight= 11.9/1000
-finSpacing = 1.25/1000  #ref 1.59
+finHeight= 6.0/1000
+finSpacing = 1.5/1000  #ref 1.59
 finperRow = coreWidth/finSpacing
 print finperRow
 
@@ -34,7 +34,7 @@ mu_Air = 0.00001912 # Pa s, Dynamic Viscosity
 
 ## operating conditions
 
-flowrateCoolant = 30 #GPM, volumetric
+flowrateCoolant = 5 #GPM, volumetric
 flowrateCoolant = flowrateCoolant * 3.8 #LPM
 print flowrateCoolant
 flowrateCoolant = flowrateCoolant /60/1000 # convert to m3/s
@@ -42,14 +42,14 @@ massflowCoolant = flowrateCoolant *rho_Coolant
 
 
 
-flowrateAir2 = 2500 #CFM, volumetric
+flowrateAir2 = 1200 #CFM, volumetric
 flowrateAir2 = flowrateAir2 / 60 / 35.3 #convert to m3/s
 #print flowrateAir*3600
 travelSpeed = 60.0 #mph
 travelSpeed = travelSpeed/3600
 travelSpeed = travelSpeed * 1609 # convert to m/s
 flowrateAir = travelSpeed * coreHeight * coreWidth
-#flowrateAir = flowrateAir2
+flowrateAir = flowrateAir2
 #print flowrateAir
 massflowAir = flowrateAir *rho_Air
 
@@ -81,14 +81,19 @@ print '------------------------'
 Dh_Air = 4 * (finHeight * finSpacing) / (2*(finHeight + finSpacing))
 airVelocity = flowrateAir/numberAirPass/(finHeight*finSpacing)
 reynoldsAir = fluids.core.Reynolds(D=Dh_Air, rho=rho_Air, V=airVelocity, mu=mu_Air)
+print reynoldsAir
 prandltAir = fluids.core.Prandtl(Cp=C_Air , k=k_Air , mu=mu_Air, nu=None, rho=None, alpha=None)
-#nusseltAir = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsAir, Pr=prandltAir, heating=True)
-nusseltAir =ht.conv_external.Nu_cylinder_Zukauskas(Re=reynoldsAir, Pr=prandltAir, Prw=None)
+if reynoldsAir<2600:
+    nusseltAir = ht.conv_internal.laminar_Q_const()
+else:
+    nusseltAir = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsAir, Pr=prandltAir, heating=True)
+#nusseltAir =ht.conv_external.Nu_cylinder_Zukauskas(Re=reynoldsAir, Pr=prandltAir, Prw=None)
 
-#nusseltAir = 4  # manual overide for laminare flow
+#nusseltAir = 10  # manual overide for laminare flow
 print nusseltAir
 h_Air = nusseltAir * k_Air / Dh_Air
 hRatio = h_Coolant/h_Air
+print "ratio"
 print hRatio
 #calculate UA
 UA = 1/(h_Coolant*areaCoolant) + 1/(h_Air*areaAir)
@@ -96,7 +101,11 @@ UA = 1/UA
 
 print UA
 
-print(ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA))
+NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
+Power = NTU['Q']/1000*3/.75
+print NTU
+print "Support power: "
+print Power
 
 
 ####testing
