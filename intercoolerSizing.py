@@ -5,9 +5,9 @@ import fluids
 
 
 ## initial variables and all dims in meters
-coreHeight = 4.5 * 25.4/1000 #all dims in meters
-coreWidth = 10 * 25.4/1000
-coreThickness = 4.5 * 25.4/1000
+coreHeight = 4.1 * 25.4/1000 #all dims in meters
+coreWidth = 9.0 * 25.4/1000
+coreThickness = 3.0 * 25.4/1000
 
 
 finHeight= 6.0/1000
@@ -42,7 +42,7 @@ massflowCoolant = flowrateCoolant *rho_Coolant
 
 
 
-flowrateAir2 = 170 #CFM, volumetric
+flowrateAir2 = 200 #CFM, volumetric
 flowrateAir2 = flowrateAir2 / 60 / 35.3 #convert to m3/s
 #print flowrateAir*3600
 travelSpeed = 55.0 #mph
@@ -53,7 +53,7 @@ flowrateAir = flowrateAir2
 #print flowrateAir
 massflowAir = flowrateAir *rho_Air
 
-tempAir = 150 # Celsius
+tempAir = 170 # Celsius
 tempCoolant = 80 # Celsius
 
 

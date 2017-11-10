@@ -5,13 +5,13 @@ import fluids
 
 
 ## initial variables and all dims in meters
-coreHeight = 8 * 25.4/1000 #all dims in meters
-coreWidth = 46 * 25.4/1000
+coreHeight = 18 * 25.4/1000 #all dims in meters
+coreWidth = 23 * 25.4/1000
 coreThickness = 1.25 * 25.4/1000
 
 
 finHeight= 6.0/1000
-finSpacing = 1.2/1000  #ref 1.59
+finSpacing = 1.5/1000  #ref 1.59
 finperRow = coreWidth/finSpacing
 print finperRow
 
@@ -41,22 +41,22 @@ massflowCoolant = flowrateCoolant *rho_Coolant
 
 
 
-flowrateAir2 = 1600 #CFM, volumetric
+flowrateAir2 = 1600 + 650  #CFM, volumetric
 flowrateAir2 = flowrateAir2 / 60 / 35.3 #convert to m3/s
 print flowrateAir2
 #print flowrateAir*3600
-travelSpeed = 5.0 #mph
+travelSpeed = 65.0 #mph
 travelSpeed = travelSpeed/3600
 travelSpeed = travelSpeed * 1609 # convert to m/s
 flowrateAir = travelSpeed * coreHeight * coreWidth
-
+flowrateAir *= 0.75
 #flowrateAir = flowrateAir2
-flowrateAir += flowrateAir2
+#flowrateAir += flowrateAir2
 print flowrateAir
 massflowAir = flowrateAir *rho_Air
 
-tempAir = 40 # Celsius
-tempCoolant = 100 # Celsius
+tempAir = 50 # Celsius
+tempCoolant = 105 # Celsius
 
 
 ## calculate surface areas
@@ -105,7 +105,7 @@ print UA
 
 NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
 #NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
-Power = (NTU['Q']/1000 - 4.5) *3/.75
+Power = (NTU['Q']/1000 - 10) *3/.75
 print NTU
 print "Support power: "
 print Power
