@@ -42,7 +42,7 @@ massflowCoolant = flowrateCoolant *rho_Coolant
 
 
 
-flowrateAir2 = 150 #CFM, volumetric
+flowrateAir2 = 250 #CFM, volumetric
 flowrateAir2 = flowrateAir2 / 60 / 35.3 #convert to m3/s
 #print flowrateAir*3600
 travelSpeed = 55.0 #mph
@@ -53,7 +53,7 @@ flowrateAir = flowrateAir2
 #print flowrateAir
 massflowAir = flowrateAir *rho_Air
 
-tempAir = 120 # Celsius
+tempAir = 140 # Celsius
 tempCoolant = 80 # Celsius
 
 
