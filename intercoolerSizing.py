@@ -82,7 +82,7 @@ for flowrateAir2 in range(100, 500):
     flowrateAir = flowrateAir2 / 60.0 / 35.3 #convert to m3/s
     massflowAir = flowrateAir *rho_Air
 
-    tempAir = 250.0 # Celsius
+    tempAir = 220.0 # Celsius
     tempCoolant = 95.0 # Celsius
 
 
