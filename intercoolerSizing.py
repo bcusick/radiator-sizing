@@ -2,129 +2,149 @@ import math
 import ht
 import fluids
 
-x = 1.0
-y = 1.0
-z = 1.0
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import pandas as pd
 
-for x in range(1, 12):
-    x+=1
-    for y in range(1,12):
-        y+=1
-        for z in range(1,12):
-            z+=1
-            ## initial variables and all dims in meters, frozen boost int000333
-            coreHeight = x * 25.4/1000 #all dims in meters
-            coreWidth = y * 25.4/1000
-            coreThickness = z * 25.4/1000
+x1 = 6.0
+y1 = 6.0
+z1 = 10.5
 
-            wallThickness = 0.5/1000
+x2 = 7.0
+y2 = 4.0
+z2 = 4.5
 
-            finHeightAir= 6.0/1000
-            finSpacingAir = 25.4/12.5/1000  #ref frozen spec
+x = x1
+y = y1
+z = z1
 
 
+temp = []
+rateAir =[]
 
-            finHeightCoolant= 2.0/1000
-            finSpacingCoolant = 25.4/8.5/1000  #ref frozen spec
+for flowrateAir2 in range(100, 500):
+    #flowrateAir2 +=25
+    ## initial variables and all dims in meters, frozen boost int000333
+    coreHeight = x * 25.4/1000 #all dims in meters
+    coreWidth = y * 25.4/1000
+    coreThickness = z * 25.4/1000
 
+    wallThickness = 0.5/1000
 
-            ## calculate surface areas
-            numberofBars = math.floor((coreHeight - wallThickness)/(finHeightAir + wallThickness + finHeightCoolant + wallThickness))
-            numberCoolantPass = (coreThickness/finSpacingCoolant + 1) * numberofBars
-            #numberCoolantPass = numberofBars
-            #print numberCoolantPass
-            numberAirPass = (coreWidth/finSpacingAir + 1) * numberofBars
-            #print numberAirPass
-
-            areaCoolant = numberCoolantPass * 2 * coreWidth * (finSpacingCoolant + finHeightCoolant)
-            #areaCoolant = numberCoolantPass * 2 * coreWidth * (coreThickness + finHeightCoolant)
-            areaAir =  numberAirPass * 2 * coreThickness * (finSpacingAir + finHeightAir)
-
-
-            ##fluid constants
-            ##coolant to 50-50 glycol/water
-
-            k_Coolant = 0.415 # W/(m K), thermal conductivity
-            C_Coolant = 3681.9 # J/(kg K), Specific Heat
-            rho_Coolant = 1015.6 # kg/m3, Density
-            mu_Coolant = 0.000744 # Pa s, Dynamic Viscosity
-
-            k_Air = 0.02664 # W/(m K), thermal conductivity
-            C_Air = 1004.16 # J/(kg K), Specific Heat
-            rho_Air = 1.13731 # kg/m3, Density
-            mu_Air = 0.00001912 # Pa s, Dynamic Viscosity
-
-
-            ## operating conditions
-
-            flowrateCoolant = 10 #GPM, volumetric
-            flowrateCoolant = flowrateCoolant * 3.8 #LPM
-
-            flowrateCoolant = flowrateCoolant /60/1000 # convert to m3/s
-            massflowCoolant = flowrateCoolant *rho_Coolant
+    finHeightAir= 6.0/1000
+    finSpacingAir = 25.4/12.5/1000  #ref frozen spec
 
 
 
-            flowrateAir = 450 #CFM, volumetric
-            flowrateAir = flowrateAir / 60 / 35.3 #convert to m3/s
-            massflowAir = flowrateAir *rho_Air
-
-            tempAir = 210 # Celsius
-            tempCoolant = 80 # Celsius
+    finHeightCoolant= 2.0/1000
+    finSpacingCoolant = 25.4/8.5/1000  #ref frozen spec
 
 
+    ## calculate surface areas
+    numberofBars = math.floor((coreHeight - wallThickness)/(finHeightAir + wallThickness + finHeightCoolant + wallThickness))
+    numberCoolantPass = (coreThickness/finSpacingCoolant + 1) * numberofBars
+    #numberCoolantPass = numberofBars
+    #print numberCoolantPass
+    numberAirPass = (coreWidth/finSpacingAir + 1) * numberofBars
+    #print numberAirPass
+
+    areaCoolant = numberCoolantPass * 2 * coreWidth * (finSpacingCoolant + finHeightCoolant)
+    #areaCoolant = numberCoolantPass * 2 * coreWidth * (coreThickness + finHeightCoolant)
+    areaAir =  numberAirPass * 2 * coreThickness * (finSpacingAir + finHeightAir)
 
 
-            ## fluids calcs
-            #Coolant
-            Dh_Coolant = 4 * (finHeightCoolant * finSpacingCoolant) / (2*(finHeightCoolant + finSpacingCoolant))
+    ##fluid constants
+    ##coolant to 50-50 glycol/water
 
-            tubeVelocity = flowrateCoolant/numberCoolantPass/(finHeightCoolant*finSpacingCoolant)
-            #reynoldsCoolant = fluids.core.Reynolds(D=Dh_Coolant, rho=rho_Coolant, V=tubeVelocity, mu=mu_Coolant)
-            reynoldsCoolant = 5000 #force turbulent
-            prandltCoolant = fluids.core.Prandtl(Cp=C_Coolant , k=k_Coolant , mu=mu_Coolant, nu=None, rho=None, alpha=None)
-            if reynoldsCoolant<2600:
-                nusseltCoolant = ht.conv_internal.laminar_Q_const()
-            else:
-                nusseltCoolant = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsCoolant, Pr=prandltCoolant, heating=True)
-            h_Coolant = nusseltCoolant * k_Coolant / Dh_Coolant
+    k_Coolant = 0.415 # W/(m K), thermal conductivity
+    C_Coolant = 3681.9 # J/(kg K), Specific Heat
+    rho_Coolant = 1015.6 # kg/m3, Density
+    mu_Coolant = 0.000744 # Pa s, Dynamic Viscosity
+
+    k_Air = 0.02664 # W/(m K), thermal conductivity
+    C_Air = 1004.16 # J/(kg K), Specific Heat
+    rho_Air = 1.13731 # kg/m3, Density
+    mu_Air = 0.00001912 # Pa s, Dynamic Viscosity
 
 
-            #AIR
-            Dh_Air = 4 * (finHeightAir * finSpacingAir) / (2*(finHeightAir + finSpacingAir))
-            airVelocity = flowrateAir/numberAirPass/(finHeightAir*finSpacingAir)
-            reynoldsAir = fluids.core.Reynolds(D=Dh_Air, rho=rho_Air, V=airVelocity, mu=mu_Air)
-            reynoldsAir = 5000 # force turbulent
+    ## operating conditions
 
-            prandltAir = fluids.core.Prandtl(Cp=C_Air , k=k_Air , mu=mu_Air, nu=None, rho=None, alpha=None)
-            if reynoldsAir<2600:
-                nusseltAir = ht.conv_internal.laminar_Q_const()
-            else:
-                nusseltAir = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsAir, Pr=prandltAir, heating=False)
+    flowrateCoolant = 10 #GPM, volumetric
+    flowrateCoolant = flowrateCoolant * 3.8 #LPM
 
-            #nusseltAir =ht.conv_external.Nu_cylinder_Zukauskas(Re=reynoldsAir, Pr=prandltAir, Prw=None)
-
-            #nusseltAir = 10  # manual overide for laminare flow
-
-            h_Air = nusseltAir * k_Air / Dh_Air
-
-            #calculate UA
-            UA = 1/(h_Coolant*areaCoolant) + 1/(h_Air*areaAir)
-            UA = 1/UA
+    flowrateCoolant = flowrateCoolant /60.0/1000 # convert to m3/s
+    massflowCoolant = flowrateCoolant *rho_Coolant
 
 
 
-            #NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
-            NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
-            #print NTU
-            #print NTU['Q']
+    #flowrateAir = 360 #CFM, volumetric
+    flowrateAir = flowrateAir2 / 60.0 / 35.3 #convert to m3/s
+    massflowAir = flowrateAir *rho_Air
 
-            Tout = NTU['Tho']
-            totalDim = x + y + z
-            output = [Tout, x, y, z, totalDim]
-            #print output
-            if output[4]<25:
-                if output[0]<85:
-                    print output
+    tempAir = 250.0 # Celsius
+    tempCoolant = 95.0 # Celsius
 
-            ####testing
+
+
+
+    ## fluids calcs
+    #Coolant
+    Dh_Coolant = 4 * (finHeightCoolant * finSpacingCoolant) / (2*(finHeightCoolant + finSpacingCoolant))
+
+    tubeVelocity = flowrateCoolant/numberCoolantPass/(finHeightCoolant*finSpacingCoolant)
+    reynoldsCoolant = fluids.core.Reynolds(D=Dh_Coolant, rho=rho_Coolant, V=tubeVelocity, mu=mu_Coolant)
+    reynoldsCoolant = 5000.0 #force turbulent
+    prandltCoolant = fluids.core.Prandtl(Cp=C_Coolant , k=k_Coolant , mu=mu_Coolant, nu=None, rho=None, alpha=None)
+    if reynoldsCoolant<2600:
+        nusseltCoolant = ht.conv_internal.laminar_Q_const()
+    else:
+        nusseltCoolant = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsCoolant, Pr=prandltCoolant, heating=True)
+    h_Coolant = nusseltCoolant * k_Coolant / Dh_Coolant
+
+
+    #AIR
+    Dh_Air = 4 * (finHeightAir * finSpacingAir) / (2*(finHeightAir + finSpacingAir))
+    airVelocity = flowrateAir2/numberAirPass/(finHeightAir*finSpacingAir)
+    reynoldsAir = fluids.core.Reynolds(D=Dh_Air, rho=rho_Air, V=airVelocity, mu=mu_Air)
+    reynoldsAir = 5000.0 # force turbulent
+
+    prandltAir = fluids.core.Prandtl(Cp=C_Air , k=k_Air , mu=mu_Air, nu=None, rho=None, alpha=None)
+    if reynoldsAir<2600:
+        nusseltAir = ht.conv_internal.laminar_Q_const()
+    else:
+        nusseltAir = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsAir, Pr=prandltAir, heating=False)
+
+    #nusseltAir =ht.conv_external.Nu_cylinder_Zukauskas(Re=reynoldsAir, Pr=prandltAir, Prw=None)
+
+    #nusseltAir = 10  # manual overide for laminare flow
+
+    h_Air = nusseltAir * k_Air / Dh_Air
+
+    #calculate UA
+    UA = 1/(h_Coolant*areaCoolant) + 1/(h_Air*areaAir)
+    UA = 1/UA
+
+
+
+    #NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
+    NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
+    #print NTU
+    #print NTU['Q']
+
+    Tout = NTU['Tho']
+
+    #output = [Tout, flowrateAir2]
+    temp.append(Tout)
+    rateAir.append(flowrateAir2)
+
+    #print output
+
+df=pd.DataFrame({'Air Flowrate': rateAir, 'Temperature': temp })
+
+# plot
+plt.plot( 'Air Flowrate', 'Temperature', data=df)
+plt.show()
+    #print output
+
+    ####testing

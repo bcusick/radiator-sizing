@@ -1,12 +1,11 @@
-
+import math
 import ht
-
 import fluids
 
 
 ## initial variables and all dims in meters
-coreHeight = 18 * 25.4/1000 #all dims in meters
-coreWidth = 23 * 25.4/1000
+coreHeight = 9 * 25.4/1000 #all dims in meters
+coreWidth = 46 * 25.4/1000
 coreThickness = 1.25 * 25.4/1000
 
 
@@ -45,7 +44,7 @@ flowrateAir2 = 1600 + 650  #CFM, volumetric
 flowrateAir2 = flowrateAir2 / 60 / 35.3 #convert to m3/s
 print flowrateAir2
 #print flowrateAir*3600
-travelSpeed = 5.0 #mph
+travelSpeed = 60.0 #mph
 travelSpeed = travelSpeed/3600
 travelSpeed = travelSpeed * 1609 # convert to m/s
 flowrateAir = travelSpeed * coreHeight * coreWidth
@@ -60,7 +59,7 @@ tempCoolant = 105 # Celsius
 
 
 ## calculate surface areas
-numberTubes = round(coreHeight / finHeight - 1)
+numberTubes = math.floor(coreHeight / finHeight - 1)
 numberAirPass = coreWidth / finSpacing * (numberTubes + 1)
 tubeInnerH = tubeHeight - 2 * tubeWall
 tubeInnerW = coreThickness - 2 * tubeWall
@@ -83,6 +82,7 @@ print '------------------------'
 Dh_Air = 4 * (finHeight * finSpacing) / (2*(finHeight + finSpacing))
 airVelocity = flowrateAir/numberAirPass/(finHeight*finSpacing)
 reynoldsAir = fluids.core.Reynolds(D=Dh_Air, rho=rho_Air, V=airVelocity, mu=mu_Air)
+reynoldsAir = 5000
 print reynoldsAir
 prandltAir = fluids.core.Prandtl(Cp=C_Air , k=k_Air , mu=mu_Air, nu=None, rho=None, alpha=None)
 if reynoldsAir<2600:
@@ -105,7 +105,7 @@ print UA
 
 NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
 #NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
-Power = (NTU['Q']/1000) *3/.75
+Power = (NTU['Q']/1000 - 15) *3/.75
 print NTU
 print "Support power: "
 print Power
