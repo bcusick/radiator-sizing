@@ -21,9 +21,11 @@ z = z1
 
 
 temp = []
+temp2 = []
 rateAir =[]
+pwr=[]
 
-for flowrateAir2 in range(100, 500):
+for flowrateAir2 in range(225, 275):
     #flowrateAir2 +=25
     ## initial variables and all dims in meters, frozen boost int000333
     coreHeight = x * 25.4/1000 #all dims in meters
@@ -133,18 +135,25 @@ for flowrateAir2 in range(100, 500):
     #print NTU['Q']
 
     Tout = NTU['Tho']
-
+    Pwr = NTU['Q'] / 1000
+    TCout = NTU['Tco']
     #output = [Tout, flowrateAir2]
     temp.append(Tout)
     rateAir.append(flowrateAir2)
+    pwr.append(Pwr)
+    temp2.append(TCout)
 
     #print output
 
-df=pd.DataFrame({'Air Flowrate': rateAir, 'Temperature': temp })
-
+df=pd.DataFrame({'Temperature': pd.Series(temp, index=rateAir),
+                'Power': pd.Series(pwr, index= rateAir),
+                'Temp2': pd.Series(temp2, index= rateAir) })
+print df
+#df.plot('Power')
+#df.plot(x='Air Flowrate', y1='Temperature', y2='Power')
 # plot
-plt.plot( 'Air Flowrate', 'Temperature', data=df)
-plt.show()
+#plt.plot( 'Air Flowrate', 'Temperature', data=df)
+#plt.show()
     #print output
 
     ####testing
