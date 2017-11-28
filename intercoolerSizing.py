@@ -25,7 +25,7 @@ temp2 = []
 rateAir =[]
 pwr=[]
 
-for flowrateAir2 in range(225, 290):
+for flowrateAir2 in range(200, 250):
     #flowrateAir2 +=25
     ## initial variables and all dims in meters, frozen boost int000333
     coreHeight = x * 25.4/1000 #all dims in meters
@@ -84,8 +84,8 @@ for flowrateAir2 in range(225, 290):
     flowrateAir = flowrateAir2 / 60.0 / 35.3 #convert to m3/s
     massflowAir = flowrateAir *rho_Air
 
-    tempAir = 230.0 # Celsius
-    tempCoolant = 105.0 # Celsius
+    tempAir = 180.0 # Celsius
+    tempCoolant = 95.0 # Celsius
 
 
 
