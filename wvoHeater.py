@@ -38,7 +38,7 @@ flowrateCoolant3 = 5.   #GPM
 #constants
 
 tempCoolant = 75 # Celsius
-tempFuel = 50 # Celsius
+tempFuel = 30 # Celsius
 consumeFuel = 0.37 #lb/HP/hr
 
 
@@ -63,14 +63,7 @@ consumeFuel /= rho_Fuel #m3/HP/s
 
 def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
 
-
-
-
-
     ## calculate surface areas
-
-
-
     areaCoolant = heatXA * numPlates
     areaFuel =  heatXA * numPlates
 
@@ -81,7 +74,6 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
     flowrateCoolant = flowrateCoolant * 3.8 #LPM
     flowrateCoolant = flowrateCoolant /60./1000. # convert to m3/s
     massflowCoolant = flowrateCoolant *rho_Coolant
-    print massflowCoolant * C_Coolant
 
     ## fluids calcs
     #Coolant
@@ -94,23 +86,16 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
     else:
         nusseltCoolant = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsCoolant, Pr=prandltCoolant, heating=False)
     h_Coolant = nusseltCoolant * k_Coolant / Dh_Coolant
-    
 
     #setup arrays for data.
     temp = []
     #power = []
     rateFuel =[]
 
-
-
     for flowrateFuel1 in float_range(.5, 250, 5):
-
 
         flowrateFuel = flowrateFuel1 * consumeFuel # convert to m3/s
         massflowFuel = flowrateFuel *rho_Fuel
-
-
-
 
         ## fluids calcs
         #Fuel
@@ -126,11 +111,8 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
 
         h_Fuel = nusseltFuel * k_Fuel / Dh_Fuel
 
-
-
         UA = 1./(h_Coolant*areaCoolant) + 1./(h_Fuel*areaFuel)
         UA = 1./UA
-
 
         NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowFuel, Cph=C_Coolant, Cpc=C_Fuel, subtype='counterflow', Thi=tempCoolant, Tho=None, Tci=tempFuel, Tco=None, UA=UA)
         #NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
@@ -151,11 +133,18 @@ rad3 = radCalc(numPlates3, heatXA3, length3, width3, plateThk3, flowrateCoolant3
 #rad4 = radCalc(Height4, Width4, Thickness4, fanFlow4, speed4, tempAir4)
 #rad5 = radCalc(Height5, Width5, Thickness5, fanFlow5, flowrateCoolant5, tempAir5)
 
-dataSet = pd.DataFrame({'10'                             : rad1,
-                        '20'                             : rad2,
-                        '30'                             : rad3})
+dataSet = pd.DataFrame({'10 Plate'                             : rad1,
+                        '20 Plate'                             : rad2,
+                        '30 Plate'                             : rad3})
+print dataSet
+
 dataSet.plot()
+plt.xlabel('HP')
+plt.ylabel('Celcius')
+plt.title('Duda Diesel B3-12A Comparison')
+plt.text(0.01, 55, 'Th={0}, Tc={1}'.format(tempCoolant, tempFuel), size=8)
+plt.grid(1)
 plt.show()
 
-#print dataSet
+
 ####testing

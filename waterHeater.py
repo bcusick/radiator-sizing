@@ -137,6 +137,7 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
         #NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
         #Power = (NTU['Q']/1000) /0.3/.75
         tOut = (NTU['Tco'])
+        #tOut = C_Fuel / tOut * (rho_Fuel/1000.) * 15 * 3.8 *10/60.  #sort of calulate time in mins. to heat 15gal water
 
         temp.append(tOut) #fill data arrays
         rateFuel.append(flowrateFuel1)
@@ -152,10 +153,17 @@ rad3 = radCalc(numPlates3, heatXA3, length3, width3, plateThk3, flowrateCoolant3
 #rad4 = radCalc(Height4, Width4, Thickness4, fanFlow4, speed4, tempAir4)
 #rad5 = radCalc(Height5, Width5, Thickness5, fanFlow5, flowrateCoolant5, tempAir5)
 
-dataSet = pd.DataFrame({'10'                             : rad1,
-                        '20'                             : rad2,
-                        '30'                             : rad3})
+dataSet = pd.DataFrame({'10 Plate'                             : rad1,
+                        '20 Plate'                             : rad2,
+                        '30 Plate'                             : rad3})
+print dataSet
+
 dataSet.plot()
+plt.xlabel('GPM')
+plt.ylabel('Celcius')
+plt.title('Duda Diesel B3-14DW Comparison')
+plt.text(0.01, 2, 'Th={0}, Tc={1}'.format(tempCoolant, tempFuel), size=8)
+plt.grid(1)
 plt.show()
 
 #print dataSet
