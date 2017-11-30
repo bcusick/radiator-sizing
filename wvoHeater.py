@@ -17,29 +17,29 @@ length1 =  199./1000 #all dims converted to meters
 width1 = 85./1000
 plateThk1 = 2.34/1000
 heatXA1 = .012 #m2
-numPlates1 = 10.
+numPlates1 = 10
 flowrateCoolant1 = 5.   #GPM
 
 length2 =  199./1000 #all dims converted to meters
 width2 = 85./1000
 plateThk2 = 2.34/1000
 heatXA2 = .012 #m2
-numPlates2 = 20.
+numPlates2 = 20
 flowrateCoolant2 = 5.   #GPM
 
 length3 =  199./1000 #all dims converted to meters
 width3 = 85./1000
 plateThk3 = 2.34/1000
 heatXA3 = .012 #m2
-numPlates3 = 30.
+numPlates3 = 60
 flowrateCoolant3 = 5.   #GPM
 
 
 #constants
 
-tempCoolant = 75 # Celsius
-tempFuel = 30 # Celsius
-consumeFuel = 0.37 #lb/HP/hr
+tempCoolant = 95 # Celsius
+tempFuel = 50 # Celsius
+consumeFuel = 0.4 #lb/HP/hr
 
 
 ##fluid constants
@@ -73,7 +73,7 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
     ## coolant calcs
     flowrateCoolant = flowrateCoolant * 3.8 #LPM
     flowrateCoolant = flowrateCoolant /60./1000. # convert to m3/s
-    massflowCoolant = flowrateCoolant *rho_Coolant
+    massflowCoolant = flowrateCoolant *rho_Coolant #kg/s
 
     ## fluids calcs
     #Coolant
@@ -95,12 +95,17 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
     for flowrateFuel1 in float_range(.5, 250, 5):
 
         flowrateFuel = flowrateFuel1 * consumeFuel # convert to m3/s
-        massflowFuel = flowrateFuel *rho_Fuel
+        #print flowrateFuel*1000000*60 #ml/min
+        #print flowrateFuel/(3.14 * .003**2) # m/s fuel velocity through 6mm fuel line
+        massflowFuel = flowrateFuel *rho_Fuel #kg/s
+
+        #print massflowFuel/3.1 * 3600 #GPH
 
         ## fluids calcs
         #Fuel
         Dh_Fuel = 4. * areaXSec / perimeterXSec
         fuelVelocity = flowrateFuel/(numPlates / 2.)/(areaXSec)
+
         reynoldsFuel = fluids.core.Reynolds(D=Dh_Fuel, rho=rho_Fuel, V=fuelVelocity, mu=mu_Fuel)
         prandltFuel = fluids.core.Prandtl(Cp=C_Fuel , k=k_Fuel , mu=mu_Fuel, nu=None, rho=None, alpha=None)
         if reynoldsFuel<5000:
@@ -133,16 +138,17 @@ rad3 = radCalc(numPlates3, heatXA3, length3, width3, plateThk3, flowrateCoolant3
 #rad4 = radCalc(Height4, Width4, Thickness4, fanFlow4, speed4, tempAir4)
 #rad5 = radCalc(Height5, Width5, Thickness5, fanFlow5, flowrateCoolant5, tempAir5)
 
-dataSet = pd.DataFrame({'10 Plate'                             : rad1,
-                        '20 Plate'                             : rad2,
-                        '30 Plate'                             : rad3})
+dataSet = pd.DataFrame({'{0} Plate'.format(numPlates1)      : rad1,
+                        '{0} Plate'.format(numPlates2)      : rad2,
+                        '{0} Plate'.format(numPlates3)      : rad3})
 print dataSet
 
 dataSet.plot()
 plt.xlabel('HP')
 plt.ylabel('Celcius')
 plt.title('Duda Diesel B3-12A Comparison')
-plt.text(0.01, 55, 'Th={0}, Tc={1}'.format(tempCoolant, tempFuel), size=8)
+ymin, ymax = plt.ylim()
+plt.text(0.01, ymin + 1, 'Th={0}, Tc={1}'.format(tempCoolant, tempFuel), size=8)
 plt.grid(1)
 plt.show()
 

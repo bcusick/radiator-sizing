@@ -17,21 +17,21 @@ length1 =  199./1000 #all dims converted to meters
 width1 = 86./1000
 plateThk1 = 2.35/1000
 heatXA1 = .014 #m2
-numPlates1 = 10.
+numPlates1 = 10
 flowrateCoolant1 = 5.   #GPM
 
 length2 =  199./1000 #all dims converted to meters
 width2 = 86./1000
 plateThk2 = 2.35/1000
 heatXA2 = .014 #m2
-numPlates2 = 20.
+numPlates2 = 20
 flowrateCoolant2 = 5.   #GPM
 
 length3 =  199./1000 #all dims converted to meters
 width3 = 86./1000
 plateThk3 = 2.35/1000
 heatXA3 = .014 #m2
-numPlates3 = 30.
+numPlates3 = 30
 flowrateCoolant3 = 5.   #GPM
 
 
@@ -153,16 +153,17 @@ rad3 = radCalc(numPlates3, heatXA3, length3, width3, plateThk3, flowrateCoolant3
 #rad4 = radCalc(Height4, Width4, Thickness4, fanFlow4, speed4, tempAir4)
 #rad5 = radCalc(Height5, Width5, Thickness5, fanFlow5, flowrateCoolant5, tempAir5)
 
-dataSet = pd.DataFrame({'10 Plate'                             : rad1,
-                        '20 Plate'                             : rad2,
-                        '30 Plate'                             : rad3})
+dataSet = pd.DataFrame({'{0} Plate'.format(numPlates1)      : rad1,
+                        '{0} Plate'.format(numPlates2)      : rad2,
+                        '{0} Plate'.format(numPlates3)      : rad3})
 print dataSet
 
 dataSet.plot()
 plt.xlabel('GPM')
 plt.ylabel('Celcius')
 plt.title('Duda Diesel B3-14DW Comparison')
-plt.text(0.01, 2, 'Th={0}, Tc={1}'.format(tempCoolant, tempFuel), size=8)
+ymin, ymax = plt.ylim()
+plt.text(0.01, ymin + 1, 'Th={0}, Tc={1}'.format(tempCoolant, tempFuel), size=8)
 plt.grid(1)
 plt.show()
 

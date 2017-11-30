@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 ## initial variables and all dims in meters
-#rad1 - crossflow - 2 pass
+name1 = 'crossflow - 2 pass'
 Height1 = (16./2.) * 25.4/1000 #all dims in meters
 Width1 = (16 * 2.) * 25.4/1000
 Thickness1 = 2.0 * 25.4/1000
@@ -16,7 +16,7 @@ flowrateCoolant1 = 40 #GPM
 tempAir1 = 50 # Celsius
 
 
-#rad2 - DownFlow - Griffen Toyota
+name2 = 'DownFlow - Griffen Toyota'
 Height2 = 21 * 25.4/1000 #all dims in meters
 Width2 = 16 * 25.4/1000
 Thickness2 = 1.5 * 25.4/1000
@@ -24,7 +24,7 @@ fanFlow2 = 1850   #CFM, volumetric, 1 Spal 12" low profile fan + 1 10" high perf
 flowrateCoolant2 = 40 #GPM
 tempAir2 = 50 # Celsius
 
-#rad3 - DownFlow - Griffen Toyota - custom
+name3 = 'DownFlow - Griffen Toyota - custom'
 Height3 = 21. * 25.4/1000 #all dims in meters
 Width3 = 16. * 25.4/1000
 Thickness3 = 2.38 * 25.4/1000
@@ -33,7 +33,7 @@ flowrateCoolant3 = 40 #GPM
 tempAir3 = 50 # Celsius
 
 #CURRENT SETUP
-#rad4 - crossflow - 1 pass, 20  GPM
+name4 = 'crossflow - 1 pass, 20  GPM'
 Height4 = 16 * 25.4/1000 #all dims in meters
 Width4 = 21 * 25.4/1000
 Thickness4 = 1.25 * 25.4/1000
@@ -41,7 +41,7 @@ fanFlow4 = 1600.   #CFM, volumetric, one 16" Spal medium profile fan, 1600 CFM
 flowrateCoolant4 = 20 #GPM
 tempAir4 = 50 # Celsius
 
-#rad5 - DownFlow - Griffen Toyota - custom - 30C
+name5 = 'DownFlow - Griffen Toyota - custom - 30C'
 Height5 = 21. * 25.4/1000 #all dims in meters
 Width5 = 16. * 25.4/1000
 Thickness5 = 1.5 * 25.4/1000
@@ -63,7 +63,7 @@ tubeHeight = 2.0/1000 #outer dimension
 ##coolant to 50-50 glycol/water
 
 k_Coolant = 0.415 # W/(m K), thermal conductivity
-C_Coolant = 3681.9 # J/(kg K), Specific Heat  
+C_Coolant = 3681.9 # J/(kg K), Specific Heat
 rho_Coolant = 1015.6 # kg/m3, Density
 mu_Coolant = 0.000744 # Pa s, Dynamic Viscosity
 
@@ -138,7 +138,7 @@ def radCalc(coreHeight, coreWidth, coreThickness, fanFlow, flowrateCoolant, temp
 
         NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
         #NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
-        Power = (NTU['Q']/1000 - 11) /0.3/.75
+        Power = (NTU['Q']/1000) /0.3/.75
         #Power = (NTU['Tho'])
 
         power.append(Power) #fill data arrays
@@ -153,12 +153,20 @@ rad3 = radCalc(Height3, Width3, Thickness3, fanFlow3, flowrateCoolant3, tempAir3
 rad4 = radCalc(Height4, Width4, Thickness4, fanFlow4, flowrateCoolant4, tempAir4)
 rad5 = radCalc(Height5, Width5, Thickness5, fanFlow5, flowrateCoolant5, tempAir5)
 
-dataSet = pd.DataFrame({'Cross - 2pass'         : rad1,
-                        'Down - 1.5'            : rad2,
-                        'Down - 2.38'           : rad3,
-                        'Cross - 1pass - 20GPM' : rad4,
-                        'Down - 1.5 - 30C'     : rad5})
+dataSet = pd.DataFrame({'{0} - {1}C'.format(name1, tempAir1)            : rad1,
+                        '{0} - {1}C'.format(name2, tempAir2)            : rad2,
+                        '{0} - {1}C'.format(name3, tempAir3)            : rad3,
+                        '{0} - {1}C'.format(name4, tempAir4)            : rad4,
+                        '{0} - {1}C'.format(name5, tempAir5)            : rad5})
+print dataSet
+
 dataSet.plot()
+plt.xlabel('MPH')
+plt.ylabel('HP supported')
+plt.title('Radiator Comparison')
+ymin, ymax = plt.ylim()
+plt.text(0.01, ymin + 1, 'Th={0}, Tc={1}'.format(tempCoolant, tempAir1), size=8)
+plt.grid(1)
 plt.show()
 
 #print dataSet
