@@ -31,14 +31,14 @@ length3 =  199./1000 #all dims converted to meters
 width3 = 85./1000
 plateThk3 = 2.34/1000
 heatXA3 = .012 #m2
-numPlates3 = 60
+numPlates3 = 30
 flowrateCoolant3 = 5.   #GPM
 
 
 #constants
 
 tempCoolant = 95 # Celsius
-tempFuel = 50 # Celsius
+tempFuel = 30 # Celsius
 consumeFuel = 0.4 #lb/HP/hr
 
 
@@ -52,7 +52,7 @@ mu_Coolant = 0.000744 # Pa s, Dynamic Viscosity
 
 k_Fuel = 0.13 # W/(m K), thermal conductivity, diesel
 C_Fuel = 1670.0 # J/(kg K), Specific Heat, veg oil
-rho_Fuel = 840.0 # kg/m3, Density, diesel
+rho_Fuel = 820.0 # kg/m3, Density, diesel, 200F
 mu_Fuel = 0.002 # Pa s, Dynamic Viscosity, diesel, should refine value
 
 #conversions
@@ -92,9 +92,13 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
     #power = []
     rateFuel =[]
 
-    for flowrateFuel1 in float_range(.5, 250, 5):
+    for flowrateFuel1 in float_range(.5, 250, .1):
 
         flowrateFuel = flowrateFuel1 * consumeFuel # convert to m3/s
+
+        #flowrateFuel = flowrateFuel1 * 3.8 /60.#LPH
+        #flowrateFuel = flowrateFuel /60./1000. # convert to m3/s
+
         #print flowrateFuel*1000000*60 #ml/min
         #print flowrateFuel/(3.14 * .003**2) # m/s fuel velocity through 6mm fuel line
         massflowFuel = flowrateFuel *rho_Fuel #kg/s
@@ -138,11 +142,13 @@ rad3 = radCalc(numPlates3, heatXA3, length3, width3, plateThk3, flowrateCoolant3
 #rad4 = radCalc(Height4, Width4, Thickness4, fanFlow4, speed4, tempAir4)
 #rad5 = radCalc(Height5, Width5, Thickness5, fanFlow5, flowrateCoolant5, tempAir5)
 
+#format data
 dataSet = pd.DataFrame({'{0} Plate'.format(numPlates1)      : rad1,
                         '{0} Plate'.format(numPlates2)      : rad2,
                         '{0} Plate'.format(numPlates3)      : rad3})
 print dataSet
 
+#plot it!
 dataSet.plot()
 plt.xlabel('HP')
 plt.ylabel('Celcius')

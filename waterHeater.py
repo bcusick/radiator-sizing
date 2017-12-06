@@ -38,7 +38,7 @@ flowrateCoolant3 = 5.   #GPM
 #constants
 
 tempCoolant = 78 # Celsius, Webasto temp 78C, minimum
-tempFuel = 1 # Celsius
+tempFuel = 10  # Celsius
 consumeFuel = 0.37 #lb/HP/hr
 
 

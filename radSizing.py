@@ -1,6 +1,7 @@
 import math
 import ht
 import fluids
+import thermo
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -51,21 +52,21 @@ tempAir5 = 30 # Celsius
 
 #constants
 
-tempCoolant = 95 # Celsius
+tempCoolant = 125 # Celsius
 
 finHeight= 10.0/1000
 finSpacing = 1.7/1000  #ref 1.59
 
 tubeWall = .5/1000
 tubeHeight = 2.0/1000 #outer dimension
-
 ##fluid constants
-##coolant to 50-50 glycol/water
-
-k_Coolant = 0.415 # W/(m K), thermal conductivity
-C_Coolant = 3681.9 # J/(kg K), Specific Heat
-rho_Coolant = 1015.6 # kg/m3, Density
-mu_Coolant = 0.000744 # Pa s, Dynamic Viscosity
+##coolant mixture calcs using thermo module
+percentGlycol = .7
+Coolant = thermo.Mixture(['water', 'glycol'], Vfls=[1-percentGlycol, percentGlycol], T= 273+tempCoolant, P=2E5)
+k_Coolant = Coolant.k # W/(m K), thermal conductivity
+C_Coolant = Coolant.Cp # J/(kg K), Specific Heat
+rho_Coolant = Coolant.rho # kg/m3, Density
+mu_Coolant = Coolant.mu # Pa s, Dynamic Viscosity
 
 k_Air = 0.02664 # W/(m K), thermal conductivity
 C_Air = 1004.16 # J/(kg K), Specific Heat
