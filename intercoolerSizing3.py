@@ -149,11 +149,11 @@ df=pd.DataFrame({'Temperature': pd.Series(temp, index=rateAir),
                 'Power': pd.Series(pwr, index= rateAir),
                 'Temp2': pd.Series(temp2, index= rateAir) })
 print df
-#df.plot('Power')
+df.plot('Power')
 #df.plot(x='Air Flowrate', y1='Temperature', y2='Power')
 # plot
 #plt.plot( 'Air Flowrate', 'Temperature', data=df)
-#plt.show()
+plt.show()
     #print output
 
     ####testing

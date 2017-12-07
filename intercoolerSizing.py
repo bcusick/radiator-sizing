@@ -1,19 +1,20 @@
 import math
 import ht
 import fluids
+import thermo
 
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import pandas as pd
 
-x1 = 6.0
-y1 = 6.0
-z1 = 10.5
+x1 = 3.0
+y1 = 3.5
+z1 = 8.75
 
-x2 = 7.0
-y2 = 4.0
-z2 = 4.5
+x2 = 12
+y2 = 12
+z2 = 12
 
 x = x1
 y = y1
@@ -23,7 +24,7 @@ z = z1
 
 def get_Tout(T, flow, rho):
     coreHeight = x * 25.4/1000 #all dims in meters
-    coreWidth = y * 25.4/1000
+    coreWidth = y * 25.4/1000 #coolant tank to tank
     coreThickness = z * 25.4/1000
 
     wallThickness = 0.5/1000
@@ -53,10 +54,16 @@ def get_Tout(T, flow, rho):
     ##fluid constants
     ##coolant to 50-50 glycol/water
 
-    k_Coolant = 0.415 # W/(m K), thermal conductivity
-    C_Coolant = 3681.9 # J/(kg K), Specific Heat
-    rho_Coolant = 1015.6 # kg/m3, Density
-    mu_Coolant = 0.000744 # Pa s, Dynamic Viscosity
+    tempAir = T-273 # Celsius
+    tempCoolant = 95.0 # Celsius
+
+
+    percentGlycol = .7
+    Coolant = thermo.Mixture(['water', 'glycol'], Vfls=[1-percentGlycol, percentGlycol], T= 273+tempCoolant, P=2E5)
+    k_Coolant = Coolant.k # W/(m K), thermal conductivity
+    C_Coolant = Coolant.Cp # J/(kg K), Specific Heat
+    rho_Coolant = Coolant.rho # kg/m3, Density
+    mu_Coolant = Coolant.mu # Pa s, Dynamic Viscosity
 
     k_Air = 0.02664 # W/(m K), thermal conductivity
     C_Air = 1004.16 # J/(kg K), Specific Heat
@@ -79,8 +86,6 @@ def get_Tout(T, flow, rho):
     flowrateAir = flow
     massflowAir = flowrateAir *rho_Air
 
-    tempAir = T-273 # Celsius
-    tempCoolant = 95.0 # Celsius
 
 
 

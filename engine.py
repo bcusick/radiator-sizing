@@ -19,7 +19,7 @@ def C_to_F(C):
 
 def fuelDensity(temp, density):
     temp = C_to_F(temp)
-    tempArray=[30.00, 40.00, 50.00, 60.00, 70.00, 80.00, 90.00, 100.00, 110.00, 120.00, 130.00, 140.00, 150.00, 160.00, 170.00, 180.00, 190.00, 200.00]
+    tempArray=np.array([30.00, 40.00, 50.00, 60.00, 70.00, 80.00, 90.00, 100.00, 110.00, 120.00, 130.00, 140.00, 150.00, 160.00, 170.00, 180.00, 190.00, 200.00])
     #VCF is volume correction factor based on ASTM standard for fuel oil
     VCF_array=np.array([1.0128, 1.0084, 1.004, 0.9996, 0.9951, 0.9907, 0.9862, 0.9817, 0.9772, 0.9727, 0.9682, 0.9637, 0.9592, 0.9546, 0.9501, 0.9455, 0.941, 0.9364])
     f = interpolate.interp1d(tempArray, VCF_array, fill_value="extrapolate")

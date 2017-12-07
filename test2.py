@@ -17,14 +17,6 @@ def ft_to_m(ft):
     m= ft*12.*25.4/1000.
     return m
 
-###N = thermo.Chemical('Nitrogen')
-###O = thermo.Chemical('Oxygen')
-###Ar = thermo.Chemical('Argon')
-###g = thermo.Chemical('glycol')
-
-#x= thermo.Mixture(['water', 'glycol'], Vfls=[.99, .01])
-#x.calculate(T=temp1+273)
-
 #specific fuel consumption
 specFuel =0.37 #lb/HP/hr
 specFuel = specFuel/2.2 #kg/HP/hr
@@ -49,93 +41,66 @@ elevation = ft_to_m(elevation)
 ambient = 25 #C
 ambient +=273 #K
 
-atm = fluids.ATMOSPHERE_1976(Z=elevation) #z is meters
+#get air components and pressure at given elevation
+atm = fluids.ATMOSPHERE_NRLMSISE00(Z=elevation) #z is meters
 Patm = atm.P
+N2 = atm.zs[0]
+O2 = atm.zs[1]
+Ar = atm.zs[2]
 
-#compressor values
-Pgage = 50. #psi gage
-Pgage= psi_to_Pa(Pgage) #Pa gage
-Pabs = Pgage + Patm
-
-eta = .7 #compressor effieciency
-
-air = thermo.Mixture(['nitrogen', 'oxygen', 'argon'], Vfgs=[.7806, .21, .0094], T=ambient, P=Patm)
+#create air mixture so I can get some properties I need
+air = thermo.Mixture(['nitrogen', 'oxygen', 'argon'], Vfgs=[N2, O2, Ar], T=ambient, P=Patm)
 k = air.isentropic_exponent
 D1 = air.rho
-#temp gain in compressor
-T2 = fluids.isentropic_T_rise_compression(P1=Patm, P2=Pabs, T1=ambient, k=k, eta=eta)
 
-
-#recalc air density after compression
+# recalculate air density at given temp and pressure
 def air_density_calc(T, P):
     air.calculate(T=T, P=P)
     density = air.rho
     return density
 
+#compressor values
+Pgage = 30. #psi gage
+Pgage= psi_to_Pa(Pgage) #Pa gage
+Pabs = Pgage + Patm
 
-D2 = air_density_calc(T=T2, P=Pabs)
-
-# intercooler
-# this will run to my intercooler module... so i need temp and flow rate
-#intEff = .6
-#Tinter = T2-(T2 - ambient)*intEff
-Tnew = T2
-Told = T2+1
-
+eta = .7 #compressor effieciency
+#temp and density out of compressor
+Tturbo = fluids.isentropic_T_rise_compression(P1=Patm, P2=Pabs, T1=ambient, k=k, eta=eta)
+D2 = air_density_calc(T=Tturbo, P=Pabs)
 
 #loop intercooler calcs since flowrate influences Tout from intercooler
-while math.fabs(Told-Tnew) >1E-6:
-    Told = Tnew
-    D3 = air_density_calc(T=Tnew, P=Pabs) #need to include pressure drop here, should be manifold pressure
+Tcooler = Tturbo
+Told = 0
+while math.fabs(Told-Tcooler) >1E-6:
+    Told = Tcooler
+    #print Tcooler-273
+    D3 = air_density_calc(T=Tcooler, P=Pabs) #need to include pressure drop here, should be manifold pressure
     massflowAir = flowVol * D3 #kg/s
     flowVolCooler=massflowAir/D2
-    Tnew = cooler.get_Tout(T2, flowVolCooler, D2) + 273
+    Tcooler = cooler.get_Tout(Tturbo, flowVolCooler, D2) + 273
     #print massflowAir
-    print Tnew-273
-    print Told-Tnew
-
-Tinter = Tnew
-
-
-
-
-#massflowAir = flowVol * D3
+    print D2
+    print D3
+coolerEff = (Tturbo - Tcooler)/ (Tturbo - ambient)
+#How much fuel can I add to available air
 air_fuel=17.5
 massflowFuel = massflowAir/air_fuel
 
-
-
-
-
-
+#How much power do I get from fuel mass
 power= massflowFuel/specFuel #watts
-power= power/750
+power= power/750 #HP
 
-D_ratio= D3/D1
-#print D_ratio
-CFM_engine = flowVol * (3.281**3) * 60
+CFM_engine = flowVol * (3.281**3) * 60 #convert from SI back to CFM
 CFM_cooler = CFM_engine *D3/D2
 CFM_filter = CFM_engine *D3/D1
 
+Data = {'Power':power, 'CFM_engine':CFM_engine, 'CFM_cooler':CFM_cooler, 'CFM_filter':CFM_filter,
+        'Turbo Tmep':Tturbo-273, 'Cooler Temp':Tcooler-273, 'Cooler Eff': coolerEff}
+print Data
 
 
 
-print T2-273
-print Tinter-273
-
-print power
-
-print CFM_engine
-print CFM_cooler
-print CFM_filter
-
-
-
-
-
-
-#print air
-#print test
 
 
 '''
