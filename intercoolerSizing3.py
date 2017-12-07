@@ -20,8 +20,14 @@ y = y1
 z = z1
 
 
+temp = []
+temp2 = []
+rateAir =[]
+pwr=[]
 
-def get_Tout(T, flow, rho):
+for flowrateAir2 in range(200, 250):
+    #flowrateAir2 +=25
+    ## initial variables and all dims in meters, frozen boost int000333
     coreHeight = x * 25.4/1000 #all dims in meters
     coreWidth = y * 25.4/1000
     coreThickness = z * 25.4/1000
@@ -60,7 +66,7 @@ def get_Tout(T, flow, rho):
 
     k_Air = 0.02664 # W/(m K), thermal conductivity
     C_Air = 1004.16 # J/(kg K), Specific Heat
-    rho_Air = rho # kg/m3, Density
+    rho_Air = 1.13731 # kg/m3, Density
     mu_Air = 0.00001912 # Pa s, Dynamic Viscosity
 
 
@@ -75,11 +81,10 @@ def get_Tout(T, flow, rho):
 
 
     #flowrateAir = 360 #CFM, volumetric
-    #flowrateAir = flowrateAir / 60.0 / 35.3 #convert to m3/s
-    flowrateAir = flow
+    flowrateAir = flowrateAir2 / 60.0 / 35.3 #convert to m3/s
     massflowAir = flowrateAir *rho_Air
 
-    tempAir = T-273 # Celsius
+    tempAir = 180.0 # Celsius
     tempCoolant = 95.0 # Celsius
 
 
@@ -102,7 +107,7 @@ def get_Tout(T, flow, rho):
 
     #AIR
     Dh_Air = 4 * (finHeightAir * finSpacingAir) / (2*(finHeightAir + finSpacingAir))
-    airVelocity = flowrateAir/numberAirPass/(finHeightAir*finSpacingAir)
+    airVelocity = flowrateAir2/numberAirPass/(finHeightAir*finSpacingAir)
     reynoldsAir = fluids.core.Reynolds(D=Dh_Air, rho=rho_Air, V=airVelocity, mu=mu_Air)
     reynoldsAir = 5000.0 # force turbulent
 
@@ -133,4 +138,22 @@ def get_Tout(T, flow, rho):
     Pwr = NTU['Q'] / 1000
     TCout = NTU['Tco']
     #output = [Tout, flowrateAir2]
-    return TCout
+    temp.append(Tout)
+    rateAir.append(flowrateAir2)
+    pwr.append(Pwr)
+    temp2.append(TCout)
+
+    #print output
+
+df=pd.DataFrame({'Temperature': pd.Series(temp, index=rateAir),
+                'Power': pd.Series(pwr, index= rateAir),
+                'Temp2': pd.Series(temp2, index= rateAir) })
+print df
+#df.plot('Power')
+#df.plot(x='Air Flowrate', y1='Temperature', y2='Power')
+# plot
+#plt.plot( 'Air Flowrate', 'Temperature', data=df)
+#plt.show()
+    #print output
+
+    ####testing
