@@ -12,13 +12,13 @@ x1 = 3.0
 y1 = 3.5
 z1 = 8.75
 
-x2 = 12
-y2 = 12
-z2 = 12
+x2 = 3.75
+y2 = 4.5
+z2 = 9.75
 
-x = x1
-y = y1
-z = z1
+x = x2
+y = y2
+z = z2
 
 
 
@@ -54,7 +54,7 @@ def get_Tout(T, flow, rho):
     ##fluid constants
     ##coolant to 50-50 glycol/water
 
-    tempAir = T-273 # Celsius
+    tempAir = T-273.0 # Celsius
     tempCoolant = 95.0 # Celsius
 
 
@@ -83,9 +83,9 @@ def get_Tout(T, flow, rho):
 
     #flowrateAir = 360 #CFM, volumetric
     #flowrateAir = flowrateAir / 60.0 / 35.3 #convert to m3/s
-    flowrateAir = flow
-    massflowAir = flowrateAir *rho_Air
 
+    massflowAir = flow
+    flowrateAir = massflowAir/rho_Air
 
 
 
@@ -138,4 +138,4 @@ def get_Tout(T, flow, rho):
     Pwr = NTU['Q'] / 1000
     TCout = NTU['Tco']
     #output = [Tout, flowrateAir2]
-    return TCout
+    return Tout

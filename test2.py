@@ -27,13 +27,13 @@ bore = 96 #mm
 stroke = 103#mm
 cylinders = 4
 
-revs = 2000 #rpm
+revs = 3600 #rpm
 
 displacement = (math.pi * (bore/2.)**2) * stroke * cylinders
 displacement = displacement / (1E3**3) #m3
 
 flowVol = displacement/2. * revs/60.  #m3/s
-volEff = 0.85
+volEff = 0.75
 flowVol = flowVol * volEff
 
 elevation = 0 # ft
@@ -76,20 +76,25 @@ while math.fabs(Told-Tcooler) >1E-6:
     Told = Tcooler
     #print Tcooler-273
     D3 = air_density_calc(T=Tcooler, P=Pabs) #need to include pressure drop here, should be manifold pressure
-    massflowAir = flowVol * D3 #kg/s
-    flowVolCooler=massflowAir/D2
-    Tcooler = cooler.get_Tout(Tturbo, flowVolCooler, D2) + 273
-    #print massflowAir
-    print D2
-    print D3
+    massflowAir = flowVol * D3 #kg/s, mass flow into engine
+    #flowVolCooler=massflowAir/D2
+    Tcooler = cooler.get_Tout(Tturbo, massflowAir, D2) + 273.0
+    print massflowAir
+    #print Told-Tcooler
+
 coolerEff = (Tturbo - Tcooler)/ (Tturbo - ambient)
 #How much fuel can I add to available air
 air_fuel=17.5
 massflowFuel = massflowAir/air_fuel
 
+massflowAirNoCooler = flowVol *D2
+massflowFuelNoCooler = massflowAirNoCooler/air_fuel
+
 #How much power do I get from fuel mass
 power= massflowFuel/specFuel #watts
 power= power/750 #HP
+
+powerNoCooler = massflowFuelNoCooler/specFuel/750
 
 CFM_engine = flowVol * (3.281**3) * 60 #convert from SI back to CFM
 CFM_cooler = CFM_engine *D3/D2
@@ -98,7 +103,7 @@ CFM_filter = CFM_engine *D3/D1
 Data = {'Power':power, 'CFM_engine':CFM_engine, 'CFM_cooler':CFM_cooler, 'CFM_filter':CFM_filter,
         'Turbo Tmep':Tturbo-273, 'Cooler Temp':Tcooler-273, 'Cooler Eff': coolerEff}
 print Data
-
+print 'Intercooler Adds {0} HP'.format(round(power-powerNoCooler))
 
 
 

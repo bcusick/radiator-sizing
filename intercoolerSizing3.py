@@ -66,7 +66,7 @@ for flowrateAir2 in range(200, 250):
 
     k_Air = 0.02664 # W/(m K), thermal conductivity
     C_Air = 1004.16 # J/(kg K), Specific Heat
-    rho_Air = 1.13731 # kg/m3, Density
+    rho_Air = 1.13731 # kg/m3, Density  ##THIS IS WRONG, CHANGE BASED ON BOOST PRESSURE
     mu_Air = 0.00001912 # Pa s, Dynamic Viscosity
 
 
