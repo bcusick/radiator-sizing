@@ -39,11 +39,11 @@ flowrateCoolant3 = 40 #GPM
 tempAir3 = 50 # Celsius
 '''
 #CURRENT SETUP
-#rad4 - crossflow - 1 pass, 20  GPM
-Height4 = 16 * 25.4/1000 #all dims in meters
-Width4 = 21 * 25.4/1000
-Thickness4 = 1.25 * 25.4/1000
-fanFlow4 = 1600.   #CFM, volumetric, one 16" Spal medium profile fan, 1600 CFM
+#INTERCOOLER EXCHAnger
+Height4 = 9 * 25.4/1000 #all dims in meters
+Width4 = 10 * 25.4/1000
+Thickness4 = 2 * 25.4/1000
+fanFlow4 = 400.   #CFM, volumetric, one 16" Spal medium profile fan, 1600 CFM
 speed4 = 1. # mph
 #flowrateCoolant4 = 20 #GPM
 tempAir4 = 25 # Celsius
@@ -58,7 +58,7 @@ tempAir5 = 30 # Celsius
 '''
 #constants
 
-tempCoolant = 100 # Celsius
+tempCoolant = 55 # Celsius
 
 finHeight= 10.0/1000
 finSpacing = 1.7/1000  #ref 1.59
@@ -151,7 +151,7 @@ def radCalc(coreHeight, coreWidth, coreThickness, fanFlow, speed, tempAir):
 
         NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
         #NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
-        Power = (NTU['Q']/1000) /0.3/.75
+        Power = (NTU['Q']/1000)
         #Power = (NTU['Tho'])
 
         power.append(Power) #fill data arrays
@@ -168,6 +168,7 @@ rad4 = radCalc(Height4, Width4, Thickness4, fanFlow4, speed4, tempAir4)
 
 dataSet = pd.DataFrame({'Cross - 1pass - 20GPM'         : rad4})
 dataSet.plot()
+plt.grid(1)
 plt.show()
 
 #print dataSet

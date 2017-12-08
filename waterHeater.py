@@ -11,6 +11,7 @@ def float_range(start, end, step):
         yield start
         start += step
 
+###target output is 35C
 
 #Duda Diesel B3-14DW
 length1 =  199./1000 #all dims converted to meters
@@ -24,14 +25,15 @@ length2 =  199./1000 #all dims converted to meters
 width2 = 86./1000
 plateThk2 = 2.35/1000
 heatXA2 = .014 #m2
-numPlates2 = 20
+numPlates2 = 30
 flowrateCoolant2 = 5.   #GPM
 
-length3 =  199./1000 #all dims converted to meters
-width3 = 86./1000
-plateThk3 = 2.35/1000
-heatXA3 = .014 #m2
-numPlates3 = 30
+#Duda Diesel B3-32DW
+length3 =  286./1000 #all dims converted to meters
+width3 = 116./1000
+plateThk3 = 2.4/1000
+heatXA3 = .032 #m2
+numPlates3 = 20
 flowrateCoolant3 = 5.   #GPM
 
 

@@ -76,9 +76,10 @@ Tcooler = Tturbo
 Told = 0
 while math.fabs(Tcooler-Told) >1E-10:
     Told = Tcooler
-    print Tcooler-273
+    #print Tcooler-273
     D3 = air_density_calc(T=Tcooler, P=Pman) #density at engine
     massflowAir = flowVol * D3 #kg/s, mass flow into engine
+    print massflowAir
     Tcooler, Pcooler = cooler.get_Tout(Tturbo, massflowAir, D2)
 
 coolerEff = (Tturbo - Tcooler)/ (Tturbo - ambient)
