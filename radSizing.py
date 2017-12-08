@@ -52,7 +52,7 @@ tempAir5 = 30 # Celsius
 
 #constants
 
-tempCoolant = 125 # Celsius
+tempCoolant = 95 # Celsius
 
 finHeight= 10.0/1000
 finSpacing = 1.7/1000  #ref 1.59
@@ -61,7 +61,7 @@ tubeWall = .5/1000
 tubeHeight = 2.0/1000 #outer dimension
 ##fluid constants
 ##coolant mixture calcs using thermo module
-percentGlycol = .7
+percentGlycol = .5
 Coolant = thermo.Mixture(['water', 'glycol'], Vfls=[1-percentGlycol, percentGlycol], T= 273+tempCoolant, P=2E5)
 k_Coolant = Coolant.k # W/(m K), thermal conductivity
 C_Coolant = Coolant.Cp # J/(kg K), Specific Heat
@@ -139,7 +139,7 @@ def radCalc(coreHeight, coreWidth, coreThickness, fanFlow, flowrateCoolant, temp
 
         NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
         #NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
-        Power = (NTU['Q']/1000) /0.3/.75
+        Power = (NTU['Q']/1000-11) /0.3/.75
         #Power = (NTU['Tho'])
 
         power.append(Power) #fill data arrays

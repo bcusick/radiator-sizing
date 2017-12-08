@@ -1,0 +1,12 @@
+rpm = 2000
+VE = 0.85
+AF = 17.5
+ambient = 25 #c
+elevation = 0 #ft
+boost = 30 #psi
+coolantTemp = 95 #c
+pDrop = 0.5 #psi
+bore = 96 #mm
+stroke = 103#mm
+cylinders = 4
+fuel = 0.37 #lb/HP/hr

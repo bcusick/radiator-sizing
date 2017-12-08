@@ -1,52 +1,108 @@
 import math
 import ht
 import fluids
+import thermo
+import intercoolerSizing as cooler
+import variables as var
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import interpolate
 
-def float_range(start, end, step):
-    while start <= end:
-        yield start
-        start += step
+def psi_to_Pa(P):
+    P=P/14.5038*1E5
+    return P
 
-def C_to_F(C):
-    F= C * 9./5. + 32
-    return F
-#def rho_to_SI(rho):
+def ft_to_m(ft):
+    m= ft*12.*25.4/1000.
+    return m
 
-def fuelDensity(temp, density):
-    temp = C_to_F(temp)
-    tempArray=np.array([30.00, 40.00, 50.00, 60.00, 70.00, 80.00, 90.00, 100.00, 110.00, 120.00, 130.00, 140.00, 150.00, 160.00, 170.00, 180.00, 190.00, 200.00])
-    #VCF is volume correction factor based on ASTM standard for fuel oil
-    VCF_array=np.array([1.0128, 1.0084, 1.004, 0.9996, 0.9951, 0.9907, 0.9862, 0.9817, 0.9772, 0.9727, 0.9682, 0.9637, 0.9592, 0.9546, 0.9501, 0.9455, 0.941, 0.9364])
-    f = interpolate.interp1d(tempArray, VCF_array, fill_value="extrapolate")
-    VCF = f(temp)
-    density = VCF * density
+#specific fuel consumption
+specFuel = var.fuel
+specFuel = specFuel/2.2 #kg/HP/hr
+specFuel = specFuel/750. #kg/W/hr
+specFuel = specFuel/3600. #kg/W/s
+
+bore = var.bore
+stroke = var.stroke
+cylinders = var.cylinders
+
+revs = var.rpm #rpm
+
+displacement = (math.pi * (bore/2.)**2) * stroke * cylinders
+displacement = displacement / (1E3**3) #m3
+
+flowVol = displacement/2. * revs/60.  #m3/s
+volEff = var.VE
+flowVol = flowVol * volEff
+
+elevation = var.elevation # ft
+elevation = ft_to_m(elevation)
+ambient = var.ambient #C
+ambient +=273 #K
+
+#get air components and pressure at given elevation
+atm = fluids.ATMOSPHERE_NRLMSISE00(Z=elevation) #z is meters
+Patm = atm.P
+N2 = atm.zs[0]
+O2 = atm.zs[1]
+Ar = atm.zs[2]
+
+#create air mixture so I can get some properties I need
+air = thermo.Mixture(['nitrogen', 'oxygen', 'argon'], Vfgs=[N2, O2, Ar], T=ambient, P=Patm)
+k = air.isentropic_exponent
+D1 = air.rho
+
+# recalculate air density at given temp and pressure
+def air_density_calc(T, P):
+    air.calculate(T=T, P=P)
+    density = air.rho
     return density
 
-def airDensity(temp):
-    temp = C_to_F(temp)
-    tempArray=np.array([-40, -20, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360, 380, 400, 433, 466,
-    500, 600, 750, 1000, 1500])
-    densityArray=np.array([9.456, 9.026, 8.633, 8.449, 8.273, 8.104, 7.942, 7.786, 7.636, 7.492, 7.353, 7.219, 7.090, 6.846, 6.617, 6.404, 6.204, 6.016, 5.841, 5.674,
-    5.516, 5.367, 5.224, 5.091, 4.964, 4.843, 4.728, 4.616, 4.447, 4.288, 4.135, 3.746, 3.280, 2.717, 2.024])
-    f = interpolate.interp1d(tempArray, densityArray, fill_value="extrapolate")
-    density = f(temp)
-    print (densityArray * 10)
-    return density
+#compressor values
+Pgage = var.boost #psi gage
+Pgage= psi_to_Pa(Pgage) #Pa gage
+Pabs = Pgage + Patm
+Pman = Pabs - psi_to_Pa(var.pDrop) # est. pressure drop thru intercooler/piping
 
-x=fuelDensity(95, 850)
-y=airDensity(95)
+eta = .7 #compressor effieciency
+#temp and density out of compressor
+Tturbo = fluids.isentropic_T_rise_compression(P1=Patm, P2=Pabs, T1=ambient, k=k, eta=eta)
+D2 = air_density_calc(T=Tturbo, P=Pabs)
 
-print x
-print y
+#loop intercooler calcs since flowrate influences Tout from intercooler
+Tcooler = Tturbo
+Told = 0
+while math.fabs(Tcooler-Told) >1E-10:
+    Told = Tcooler
+    print Tcooler-273
+    D3 = air_density_calc(T=Tcooler, P=Pman) #density at engine
+    massflowAir = flowVol * D3 #kg/s, mass flow into engine
+    Tcooler, Pcooler = cooler.get_Tout(Tturbo, massflowAir, D2)
 
-'''
-graphtest=pd.Series(density, index=temp)
-graphtest.plot()
-plt.grid(1)
-plt.show()
-'''
+coolerEff = (Tturbo - Tcooler)/ (Tturbo - ambient)
+#How much fuel can I add to available air
+air_fuel=var.AF
+massflowFuel = massflowAir/air_fuel
+
+massflowAirNoCooler = flowVol *D2
+massflowFuelNoCooler = massflowAirNoCooler/air_fuel
+
+#How much power do I get from fuel mass
+power= massflowFuel/specFuel #watts
+power= power/750 #HP
+
+powerNoCooler = massflowFuelNoCooler/specFuel/750
+
+CFM_engine = flowVol * (3.281**3) * 60 #convert from SI back to CFM
+CFM_cooler = CFM_engine *D3/D2
+CFM_filter = CFM_engine *D3/D1
+
+Data = {'Power':power, 'CFM_engine':CFM_engine, 'CFM_cooler':CFM_cooler, 'CFM_filter':CFM_filter,
+        'Turbo Tmep':Tturbo-273, 'Cooler Temp':Tcooler-273, 'Cooler Eff': coolerEff}
+print Data
+print 'Intercooler Adds {0} HP'.format(round(power-powerNoCooler))
+print 'Intercooler dumps {0} kW'.format(round(Pcooler))
+print D1, D2, D3
+#print 'Time to heat 15gal 10C {0} min.'.format(time/60.)

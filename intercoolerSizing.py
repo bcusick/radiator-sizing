@@ -2,25 +2,20 @@ import math
 import ht
 import fluids
 import thermo
+import variables as var
+#PN INT000203
+x1 = 4.5
+y1 = 10
+z1 = 4.5
 
-import matplotlib.pyplot as plt
-import numpy as np
-import seaborn as sns
-import pandas as pd
-
-x1 = 3.0
-y1 = 3.5
-z1 = 8.75
-
+#PN INT000219
 x2 = 3.75
 y2 = 4.5
 z2 = 9.75
 
-x = x2
-y = y2
-z = z2
-
-
+x = x1
+y = y1
+z = z1
 
 def get_Tout(T, flow, rho):
     coreHeight = x * 25.4/1000 #all dims in meters
@@ -32,33 +27,26 @@ def get_Tout(T, flow, rho):
     finHeightAir= 6.0/1000
     finSpacingAir = 25.4/12.5/1000  #ref frozen spec
 
-
-
     finHeightCoolant= 2.0/1000
     finSpacingCoolant = 25.4/8.5/1000  #ref frozen spec
-
 
     ## calculate surface areas
     numberofBars = math.floor((coreHeight - wallThickness)/(finHeightAir + wallThickness + finHeightCoolant + wallThickness))
     numberCoolantPass = (coreThickness/finSpacingCoolant + 1) * numberofBars
-    #numberCoolantPass = numberofBars
-    #print numberCoolantPass
+
     numberAirPass = (coreWidth/finSpacingAir + 1) * numberofBars
-    #print numberAirPass
+
 
     areaCoolant = numberCoolantPass * 2 * coreWidth * (finSpacingCoolant + finHeightCoolant)
-    #areaCoolant = numberCoolantPass * 2 * coreWidth * (coreThickness + finHeightCoolant)
     areaAir =  numberAirPass * 2 * coreThickness * (finSpacingAir + finHeightAir)
-
 
     ##fluid constants
     ##coolant to 50-50 glycol/water
 
     tempAir = T-273.0 # Celsius
-    tempCoolant = 95.0 # Celsius
+    tempCoolant = var.coolantTemp # Celsius
 
-
-    percentGlycol = .7
+    percentGlycol = .5
     Coolant = thermo.Mixture(['water', 'glycol'], Vfls=[1-percentGlycol, percentGlycol], T= 273+tempCoolant, P=2E5)
     k_Coolant = Coolant.k # W/(m K), thermal conductivity
     C_Coolant = Coolant.Cp # J/(kg K), Specific Heat
@@ -70,25 +58,16 @@ def get_Tout(T, flow, rho):
     rho_Air = rho # kg/m3, Density
     mu_Air = 0.00001912 # Pa s, Dynamic Viscosity
 
-
     ## operating conditions
 
-    flowrateCoolant = 10 #GPM, volumetric
+    flowrateCoolant = 5 #GPM, volumetric
     flowrateCoolant = flowrateCoolant * 3.8 #LPM
 
     flowrateCoolant = flowrateCoolant /60.0/1000 # convert to m3/s
     massflowCoolant = flowrateCoolant *rho_Coolant
 
-
-
-    #flowrateAir = 360 #CFM, volumetric
-    #flowrateAir = flowrateAir / 60.0 / 35.3 #convert to m3/s
-
     massflowAir = flow
     flowrateAir = massflowAir/rho_Air
-
-
-
 
     ## fluids calcs
     #Coolant
@@ -103,7 +82,6 @@ def get_Tout(T, flow, rho):
     else:
         nusseltCoolant = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsCoolant, Pr=prandltCoolant, heating=True)
     h_Coolant = nusseltCoolant * k_Coolant / Dh_Coolant
-
 
     #AIR
     Dh_Air = 4 * (finHeightAir * finSpacingAir) / (2*(finHeightAir + finSpacingAir))
@@ -127,15 +105,23 @@ def get_Tout(T, flow, rho):
     UA = 1/(h_Coolant*areaCoolant) + 1/(h_Air*areaAir)
     UA = 1/UA
 
-
-
     #NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
     NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
     #print NTU
     #print NTU['Q']
 
-    Tout = NTU['Tho']
-    Pwr = NTU['Q'] / 1000
+    Tout = NTU['Tho'] + 273 #kelvin
+    Pwr = NTU['Q'] / 1000 #kW
     TCout = NTU['Tco']
     #output = [Tout, flowrateAir2]
-    return Tout
+
+
+    return Tout, Pwr
+
+'''
+
+    vol=15*3.8/1000.
+    ma=vol*rho_Coolant
+    jol_10=ma*C_Coolant*10
+    s=jol_10/(Pwr*1000)
+    '''
