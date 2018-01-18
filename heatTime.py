@@ -1,9 +1,9 @@
 import thermo
 
 Pwr = 5 #kW
-Tank = 5 #gal
+Tank = 2 #gal
 dT = 1 #F
-dC = 50 #C
+dC = 40 #C
 def F_to_C(dF):
     F1=0
     F2=F1 + dF

@@ -40,11 +40,11 @@ tempAir3 = 50 # Celsius
 '''
 #CURRENT SETUP
 #INTERCOOLER EXCHAnger
-Height4 = 9 * 25.4/1000 #all dims in meters
-Width4 = 10 * 25.4/1000
+Height4 = 6 * 25.4/1000 #all dims in meters
+Width4 = 20 * 25.4/1000
 Thickness4 = 2 * 25.4/1000
 fanFlow4 = 400.   #CFM, volumetric, one 16" Spal medium profile fan, 1600 CFM
-speed4 = 1. # mph
+speed4 = 60.0 # mph
 #flowrateCoolant4 = 20 #GPM
 tempAir4 = 25 # Celsius
 '''
@@ -58,7 +58,7 @@ tempAir5 = 30 # Celsius
 '''
 #constants
 
-tempCoolant = 55 # Celsius
+tempCoolant = 35 # Celsius
 
 finHeight= 10.0/1000
 finSpacing = 1.7/1000  #ref 1.59
@@ -100,7 +100,7 @@ def radCalc(coreHeight, coreWidth, coreThickness, fanFlow, speed, tempAir):
     travelSpeed = travelSpeed/3600.
     travelSpeed = travelSpeed * 1609 # convert to m/s
     flowrateAir = travelSpeed * coreHeight * coreWidth
-    flowrateAir *= 0.75  #safety factor accounts for radiator blockage
+    flowrateAir *= 1.0  #safety factor accounts for radiator blockage
 
     if fanFlow > flowrateAir:
         flowrateAir = fanFlow

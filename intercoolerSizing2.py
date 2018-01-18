@@ -7,9 +7,9 @@ import fluids
 
 
 ## initial variables and all dims in meters
-coreHeight = 2.5 * 25.4/1000 #all dims in meters
-coreWidth = 17.0 * 25.4/1000
-coreThickness = 1.25 * 25.4/1000
+coreHeight = 4.5 * 25.4/1000 #all dims in meters
+coreWidth = 10.0 * 25.4/1000
+coreThickness = 4.5 * 25.4/1000
 
 
 finHeight= 7.0/1000
@@ -36,7 +36,7 @@ mu_Air = 0.00001912 # Pa s, Dynamic Viscosity
 
 ## operating conditions
 
-flowrateCoolant = 10 #GPM, volumetric
+flowrateCoolant = 5 #GPM, volumetric
 flowrateCoolant = flowrateCoolant * 3.8 #LPM
 #print flowrateCoolant
 flowrateCoolant = flowrateCoolant /60/1000 # convert to m3/s
@@ -44,7 +44,7 @@ massflowCoolant = flowrateCoolant *rho_Coolant
 
 
 
-flowrateAir2 = 250 #CFM, volumetric
+flowrateAir2 = 200 #CFM, volumetric
 flowrateAir2 = flowrateAir2 / 60 / 35.3 #convert to m3/s
 #print flowrateAir*3600
 speed = 55.0 #mph
@@ -55,8 +55,8 @@ flowrateAir = flowrateAir2
 #print flowrateAir
 massflowAir = flowrateAir *rho_Air
 
-tempAir = 140 # Celsius
-tempCoolant = 80 # Celsius
+tempAir = 200 # Celsius
+tempCoolant = 35 # Celsius
 
 
 ## calculate surface areas
@@ -107,7 +107,7 @@ UA = 1/UA
 #NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowAir, Cph=C_Coolant, Cpc=C_Air, subtype='crossflow', Thi=tempCoolant, Tho=None, Tci=tempAir, Tco=None, UA=UA)
 NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
 #Power = NTU['Q']/1000*3/.75
-#print NTU
+print NTU['Q']
 pd.set_option('display.width', 160)
 output = pd.DataFrame(NTU, index=[speed])
 print output

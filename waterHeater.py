@@ -39,8 +39,8 @@ flowrateCoolant3 = 5.   #GPM
 
 #constants
 
-tempCoolant = 78 # Celsius, Webasto temp 78C, minimum
-tempFuel = 10  # Celsius
+tempCoolant = -5 # Celsius, Webasto temp 78C, minimum
+tempFuel = 30  # Celsius
 consumeFuel = 0.37 #lb/HP/hr
 
 
@@ -105,7 +105,7 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
 
 
 
-    for flowrateFuel1 in float_range(.1, 3, .1):
+    for flowrateFuel1 in float_range(.01, 0.5, .01):
 
 
         flowrateFuel = flowrateFuel1 * 3.8 #LPM
@@ -135,10 +135,10 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
         UA = 1./UA
 
 
-        NTU = ht.hx.effectiveness_NTU_method(mh=massflowCoolant, mc=massflowFuel, Cph=C_Coolant, Cpc=C_Fuel, subtype='counterflow', Thi=tempCoolant, Tho=None, Tci=tempFuel, Tco=None, UA=UA)
+        NTU = ht.hx.effectiveness_NTU_method(mh=massflowFuel, mc=massflowCoolant, Cph=C_Fuel, Cpc=C_Coolant, subtype='counterflow', Thi=tempFuel, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
         #NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
         #Power = (NTU['Q']/1000) /0.3/.75
-        tOut = (NTU['Tco'])
+        tOut = (NTU['Q'])
         #tOut = C_Fuel / tOut * (rho_Fuel/1000.) * 15 * 3.8 *10/60.  #sort of calulate time in mins. to heat 15gal water
 
         temp.append(tOut) #fill data arrays

@@ -10,6 +10,10 @@ import numpy as np
 import pandas as pd
 from scipy import interpolate
 
+import time
+start = int(round(time.time() * 1000))
+
+
 def psi_to_Pa(P):
     P=P/14.5038*1E5
     return P
@@ -76,13 +80,14 @@ Tcooler = Tturbo
 Told = 0
 while math.fabs(Tcooler-Told) >1E-10:
     Told = Tcooler
-    #print Tcooler-273
+    print Tcooler-273
     D3 = air_density_calc(T=Tcooler, P=Pman) #density at engine
     massflowAir = flowVol * D3 #kg/s, mass flow into engine
-    print massflowAir
+    #print massflowAir*3600.
     Tcooler, Pcooler = cooler.get_Tout(Tturbo, massflowAir, D2)
 
 coolerEff = (Tturbo - Tcooler)/ (Tturbo - ambient)
+
 #How much fuel can I add to available air
 air_fuel=var.AF
 massflowFuel = massflowAir/air_fuel
@@ -93,7 +98,7 @@ massflowFuelNoCooler = massflowAirNoCooler/air_fuel
 #How much power do I get from fuel mass
 power= massflowFuel/specFuel #watts
 power= power/750 #HP
-
+torque = power*5252/revs
 powerNoCooler = massflowFuelNoCooler/specFuel/750
 
 CFM_engine = flowVol * (3.281**3) * 60 #convert from SI back to CFM
@@ -101,9 +106,10 @@ CFM_cooler = CFM_engine *D3/D2
 CFM_filter = CFM_engine *D3/D1
 
 Data = {'Power':power, 'CFM_engine':CFM_engine, 'CFM_cooler':CFM_cooler, 'CFM_filter':CFM_filter,
-        'Turbo Tmep':Tturbo-273, 'Cooler Temp':Tcooler-273, 'Cooler Eff': coolerEff}
+        'Turbo Temp':Tturbo-273, 'Cooler Temp':Tcooler-273, 'Cooler Eff': coolerEff, 'Torque': torque, 'Displacement': displacement*1E3}
 print Data
 print 'Intercooler Adds {0} HP'.format(round(power-powerNoCooler))
 print 'Intercooler dumps {0} kW'.format(round(Pcooler))
 print D1, D2, D3
-#print 'Time to heat 15gal 10C {0} min.'.format(time/60.)
+end = int(round(time.time() * 1000))
+print end - start

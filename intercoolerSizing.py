@@ -5,8 +5,8 @@ import thermo
 import variables as var
 #PN INT000203
 x1 = 4.5
-y1 = 10
-z1 = 4.5
+y1 = 10.0
+z1 = 9
 
 #PN INT000219
 x2 = 3.75
@@ -63,7 +63,7 @@ def get_Tout(T, flow, rho):
     flowrateCoolant = 5 #GPM, volumetric
     flowrateCoolant = flowrateCoolant * 3.8 #LPM
 
-    flowrateCoolant = flowrateCoolant /60.0/1000 # convert to m3/s
+    flowrateCoolant = flowrateCoolant /60.0/1000. # convert to m3/s
     massflowCoolant = flowrateCoolant *rho_Coolant
 
     massflowAir = flow
