@@ -80,7 +80,7 @@ Tcooler = Tturbo
 Told = 0
 while math.fabs(Tcooler-Told) >1E-10:
     Told = Tcooler
-    print Tcooler-273
+    # print Tcooler-273
     D3 = air_density_calc(T=Tcooler, P=Pman) #density at engine
     massflowAir = flowVol * D3 #kg/s, mass flow into engine
     #print massflowAir*3600.
@@ -107,9 +107,9 @@ CFM_filter = CFM_engine *D3/D1
 
 Data = {'Power':power, 'CFM_engine':CFM_engine, 'CFM_cooler':CFM_cooler, 'CFM_filter':CFM_filter,
         'Turbo Temp':Tturbo-273, 'Cooler Temp':Tcooler-273, 'Cooler Eff': coolerEff, 'Torque': torque, 'Displacement': displacement*1E3}
-print Data
-print 'Intercooler Adds {0} HP'.format(round(power-powerNoCooler))
-print 'Intercooler dumps {0} kW'.format(round(Pcooler))
-print D1, D2, D3
+print (Data)
+print ('Intercooler Adds {0} HP'.format(round(power-powerNoCooler)))
+print ('Intercooler dumps {0} kW'.format(round(Pcooler)))
+print (D1, D2, D3)
 end = int(round(time.time() * 1000))
-print end - start
+print (end - start)

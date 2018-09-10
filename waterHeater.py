@@ -39,8 +39,8 @@ flowrateCoolant3 = 5.   #GPM
 
 #constants
 
-tempCoolant = -5 # Celsius, Webasto temp 78C, minimum
-tempFuel = 30  # Celsius
+tempCoolant = 78 # Celsius, Webasto temp 78C, minimum
+tempFuel = 10  # Celsius
 consumeFuel = 0.37 #lb/HP/hr
 
 
@@ -83,7 +83,7 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
     flowrateCoolant = flowrateCoolant * 3.8 #LPM
     flowrateCoolant = flowrateCoolant /60./1000. # convert to m3/s
     massflowCoolant = flowrateCoolant *rho_Coolant
-    print massflowCoolant * C_Coolant
+    # print massflowCoolant * C_Coolant
 
     ## fluids calcs
     #Coolant
@@ -94,7 +94,7 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
     if reynoldsCoolant<5000:
         nusseltCoolant = ht.conv_internal.laminar_Q_const()
     else:
-        nusseltCoolant = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsCoolant, Pr=prandltCoolant, heating=False)
+        nusseltCoolant = ht.conv_internal.turbulent_Dittus_Boelter(Re=reynoldsCoolant, Pr=prandltCoolant, heating=True)
     h_Coolant = nusseltCoolant * k_Coolant / Dh_Coolant
 
 
@@ -105,7 +105,7 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
 
 
 
-    for flowrateFuel1 in float_range(.01, 0.5, .01):
+    for flowrateFuel1 in float_range(.1, 3, .1):
 
 
         flowrateFuel = flowrateFuel1 * 3.8 #LPM
@@ -135,10 +135,10 @@ def radCalc(numPlates, heatXA, length, width, plateThk, flowrateCoolant):
         UA = 1./UA
 
 
-        NTU = ht.hx.effectiveness_NTU_method(mh=massflowFuel, mc=massflowCoolant, Cph=C_Fuel, Cpc=C_Coolant, subtype='counterflow', Thi=tempFuel, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
+        NTU = ht.hx.effectiveness_NTU_method(mc=massflowFuel, mh=massflowCoolant, Cpc=C_Fuel, Cph=C_Coolant, subtype='counterflow', Thi=tempCoolant, Tho=None, Tci=tempFuel, Tco=None, UA=UA)
         #NTU = ht.hx.effectiveness_NTU_method(mh=massflowAir, mc=massflowCoolant, Cph=C_Air, Cpc=C_Coolant, subtype='crossflow', Thi=tempAir, Tho=None, Tci=tempCoolant, Tco=None, UA=UA)
         #Power = (NTU['Q']/1000) /0.3/.75
-        tOut = (NTU['Q'])
+        tOut = (NTU['Tco'])
         #tOut = C_Fuel / tOut * (rho_Fuel/1000.) * 15 * 3.8 *10/60.  #sort of calulate time in mins. to heat 15gal water
 
         temp.append(tOut) #fill data arrays
@@ -158,7 +158,7 @@ rad3 = radCalc(numPlates3, heatXA3, length3, width3, plateThk3, flowrateCoolant3
 dataSet = pd.DataFrame({'{0} Plate'.format(numPlates1)      : rad1,
                         '{0} Plate'.format(numPlates2)      : rad2,
                         '{0} Plate'.format(numPlates3)      : rad3})
-print dataSet
+print (dataSet)
 
 dataSet.plot()
 plt.xlabel('GPM')
